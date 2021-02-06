@@ -1,2 +1,3 @@
 # todo-api
-The asp.net web api for the todo application. 
+
+Add "Connection String" to user secrets to connect database.
