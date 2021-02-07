@@ -1,18 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using TodoApi.Data;
 
@@ -32,11 +24,11 @@ namespace TodoApi
             services.AddDbContext<TodoContext>(opt => opt
                 .UseSqlServer(Configuration["ConnectionString"]));
 
+            services.AddCors();
+
             services.AddControllers().AddNewtonsoftJson(s => {
                 s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
-
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // services.AddScoped<ITodoRepo, MockTodoRepo>();
             services.AddScoped<ITodoRepo,  SqlTodoRepo>();
@@ -48,6 +40,8 @@ namespace TodoApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(options => options.WithOrigins("*").AllowAnyMethod());
 
             app.UseHttpsRedirection();
             app.UseRouting();
