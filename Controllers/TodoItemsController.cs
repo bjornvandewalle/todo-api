@@ -36,7 +36,7 @@ namespace TodoApi.Controllers {
             _repository.CreateTodoItem(todoItem);
             _repository.SaveChanges();
 
-            return CreatedAtRoute(nameof(GetTodoItemById), new {Id = todoItem.Id}, todoItem);
+            return CreatedAtAction(nameof(GetTodoItemById), new {id = todoItem.Id}, todoItem);
         }
 
         //PUT api/todoitems/{id}

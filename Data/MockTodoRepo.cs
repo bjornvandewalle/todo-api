@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TodoApi.Models;
+using TodoApi.Models.Enums;
 
 namespace TodoApi.Data {
     public class MockTodoRepo : ITodoRepo
@@ -18,15 +19,15 @@ namespace TodoApi.Data {
         public IEnumerable<TodoItem> GetAllTodoItems()
         {
             return new List<TodoItem> {
-                new TodoItem{ Id = 0, Name="Test", Description="This is just a test example", EnterdOn=DateTime.Now, finished = false, PriorityLevel = 3},
-                new TodoItem{ Id = 1, Name="Random", Description="This is just something random", EnterdOn=DateTime.Now, finished = true, Endtime= DateTime.Now, PriorityLevel = 1},
-                new TodoItem{ Id = 2, Name="Whatever", Description="We can fill in whatever we like", EnterdOn=DateTime.Now, finished = false, PriorityLevel = 5}
+                new TodoItem{ Id = 0, Name="Test", Description="This is just a test example", CreationTime=DateTime.Now, finished = false, PriorityLevel = Priority.High},
+                new TodoItem{ Id = 1, Name="Random", Description="This is just something random", CreationTime=DateTime.Now, finished = true, DueDate= DateTime.Now, PriorityLevel = Priority.Medium},
+                new TodoItem{ Id = 2, Name="Whatever", Description="We can fill in whatever we like", CreationTime=DateTime.Now, finished = false, PriorityLevel = Priority.Low}
             };
         }
 
         public TodoItem GetTodoItem(int id)
         {
-            return new TodoItem{ Id = 0, Name="Test", Description="This is just a test example", EnterdOn=DateTime.Now, finished = false, PriorityLevel = 3};
+            return new TodoItem{ Id = 0, Name="Test", Description="This is just a test example", CreationTime=DateTime.Now, finished = false, PriorityLevel = Priority.Low};
         }
 
         public bool SaveChanges()
