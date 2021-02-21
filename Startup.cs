@@ -25,7 +25,7 @@ namespace TodoApi
                 .UseSqlServer(Configuration["ConnectionString"]));
 
             services.AddCors();
-
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddControllers().AddNewtonsoftJson(s => {
                 s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });

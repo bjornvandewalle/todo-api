@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
 
 namespace TodoApi.Data 
@@ -36,7 +37,7 @@ namespace TodoApi.Data
 
         public void UpdateTodoItem(TodoItem tdi)
         {
-            // Nothing
+            // Not Needed
         }
 
         public void DeleteTodoItem(TodoItem tdi)

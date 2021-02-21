@@ -1,8 +1,10 @@
-using System.Collections.Generic;
+using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using TodoApi.Data;
 using TodoApi.Models;
+using TodoApi.Models.Dto;
 
 namespace TodoApi.Controllers {
 
@@ -11,44 +13,52 @@ namespace TodoApi.Controllers {
     [Route("api/[controller]")]
     public class TodoItemsController : ControllerBase {
         private readonly ITodoRepo _repository;
+        private readonly IMapper _mapper;
 
-        public TodoItemsController(ITodoRepo repository) {
+        public TodoItemsController(ITodoRepo repository, IMapper mapper) {
             _repository = repository;
+            _mapper = mapper;
         }
         
         //GET api/todoitems
         [HttpGet]
-        public ActionResult<IEnumerable<TodoItem>> GetAllTodoItems() {
+        public ActionResult<IEnumerable<TodoReadDto>> GetAllTodoItems() {
             var todoItems = _repository.GetAllTodoItems();
-            return Ok(todoItems);
+
+            return Ok(_mapper.Map<IEnumerable<TodoReadDto>>(todoItems));
         } 
 
         //GET api/todoitems/{id}
         [HttpGet("{id}")]
-        public ActionResult<TodoItem> GetTodoItemById(int id) {
+        public ActionResult<TodoReadDto> GetTodoItemById(int id) {
             var todoItem = _repository.GetTodoItem(id);
-            return todoItem != null ? Ok(todoItem) : NotFound();
+
+            return todoItem != null ? Ok(_mapper.Map<TodoReadDto>(todoItem)) : NotFound();
         }
 
         //Post api/todoitems
         [HttpPost]
-        public ActionResult<TodoItem> CreateTodoItem(TodoItem todoItem) {
-            _repository.CreateTodoItem(todoItem);
+        public ActionResult<TodoReadDto> CreateTodoItem(TodoCreateDto todoCreateDto) {
+            var todo = _mapper.Map<TodoItem>(todoCreateDto);
+            
+            _repository.CreateTodoItem(todo);
             _repository.SaveChanges();
 
-            return CreatedAtAction(nameof(GetTodoItemById), new {id = todoItem.Id}, todoItem);
+            var todoReadDto = _mapper.Map<TodoReadDto>(todo);
+
+            return CreatedAtAction(nameof(GetTodoItemById), new {id = todoReadDto.Id}, todoReadDto);
         }
 
         //PUT api/todoitems/{id}
         [HttpPut("{id}")]
-        public ActionResult UpdateTodoItem(int id, TodoItem todoItem) {
+        public ActionResult UpdateTodoItem(int id, TodoUpdateDto todoUpdateDto) {
             var todoItemModelFromRepo = _repository.GetTodoItem(id);
             if (todoItemModelFromRepo == null) return NotFound();
 
-            todoItemModelFromRepo = todoItem;
+            _mapper.Map(todoUpdateDto, todoItemModelFromRepo);
 
             _repository.UpdateTodoItem(todoItemModelFromRepo);
-            _repository.SaveChanges();
+            var result = _repository.SaveChanges();
 
             return NoContent();
         }
@@ -56,14 +66,16 @@ namespace TodoApi.Controllers {
 
         //PATCH api/todoitems/{id}
         [HttpPatch("{id}")]
-        public ActionResult PartialTodoItemUpdate(int id, JsonPatchDocument<TodoItem> patchDoc) {
+        public ActionResult PartialTodoItemUpdate(int id, JsonPatchDocument<TodoUpdateDto> patchDoc) {
             var todoItemModelFromRepo = _repository.GetTodoItem(id);
             if(todoItemModelFromRepo == null) return NotFound();
 
-            patchDoc.ApplyTo(todoItemModelFromRepo, ModelState);
+            var TodoToPatch = _mapper.Map<TodoUpdateDto>(todoItemModelFromRepo);
+            patchDoc.ApplyTo(TodoToPatch, ModelState);
 
-            if (!TryValidateModel(todoItemModelFromRepo)) return ValidationProblem(ModelState);
+            if (!TryValidateModel(TodoToPatch)) return ValidationProblem(ModelState);
 
+            _mapper.Map(TodoToPatch, todoItemModelFromRepo);    
             _repository.UpdateTodoItem(todoItemModelFromRepo);
             _repository.SaveChanges();
 
